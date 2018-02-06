@@ -1,9 +1,9 @@
 package service
 
 import (
-	"net/http"
 	"errors"
 	"fmt"
+	"net/http"
 )
 
 func checkStatus(resp *http.Response) error {

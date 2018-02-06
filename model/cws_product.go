@@ -12,11 +12,11 @@ type CwsProduct struct {
 	Name        string    `json:"name"`
 	Platform    string    `json:"platform"`
 	Quantity    int       `json:"quantity"`
-	Images      []Image     `json:"images"`
+	Images      []Image   `json:"images"`
 	Regions     []string  `json:"regions"`
 	Languages   []string  `json:"languages"`
-	Prices      []Price     `json:"prices"`
-	Links       []Link      `json:"links"`
+	Prices      []Price   `json:"prices"`
+	Links       []Link    `json:"links"`
 	ReleaseDate time.Time `json:"releaseDate"`
 }
 

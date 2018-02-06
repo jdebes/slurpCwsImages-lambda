@@ -1,15 +1,14 @@
 package main
 
 import (
-	"net/http"
 	"context"
+	"net/http"
 	"os"
 	"strings"
 	"time"
-	"fmt"
 
-	"golang.org/x/oauth2/clientcredentials"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/oauth2/clientcredentials"
 	"slurpCwsImages/service"
 )
 
@@ -27,12 +26,19 @@ func main() {
 		for _, region := range item.Regions {
 			if strings.ToUpper(region) == "WORLDWIDE" {
 				for _, image := range item.Images {
-					file, fileExt, err := cwsService.GetProductImage(image.Image)
+					fileExt, err := cwsService.HeadProductImage(image.Image)
 					if err != nil {
 						continue
 					}
 
-					awsService.UploadItemToS3(file, fileExt, fmt.Sprintf("%s_%s%s", item.ProductID, strings.ToLower(image.Format), fileExt))
+					if !awsService.S3ItemExists(item.ProductID, fileExt, image.Format) {
+						file, _, err := cwsService.GetProductImage(image.Image)
+						if err != nil {
+							continue
+						}
+
+						awsService.UploadItemToS3(file, fileExt, item.ProductID, image.Format)
+					}
 				}
 			}
 		}
@@ -44,7 +50,7 @@ func buildS3Client() service.AwsService {
 	var timeout time.Duration
 
 	bucket = getEnv("BUCKET")
-	timeout = time.Second * time.Duration(20)
+	timeout = time.Second * time.Duration(30)
 
 	return service.BuildAwsService(bucket, timeout)
 }
@@ -55,10 +61,10 @@ func buildOAuthClient() *http.Client {
 
 func buildOAuthClientConfig() *clientcredentials.Config {
 	return &clientcredentials.Config{
-		ClientID: getEnv("CWS_CLIENT_ID"),
+		ClientID:     getEnv("CWS_CLIENT_ID"),
 		ClientSecret: getEnv("CWS_CLIENT_SECRET"),
-		TokenURL: getEnv("CWS_CLIENT_TOKEN"),
-		Scopes: []string{},
+		TokenURL:     getEnv("CWS_CLIENT_TOKEN"),
+		Scopes:       []string{},
 	}
 }
 
@@ -71,6 +77,3 @@ func getEnv(key string) string {
 
 	return value
 }
-
-
-
