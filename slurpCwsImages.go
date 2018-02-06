@@ -4,12 +4,17 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/clientcredentials"
 	"slurpCwsImages/service"
+)
+
+const (
+	noImageUrl = "https://api.codeswholesale.com/assets/images/no-image.jpg"
 )
 
 func main() {
@@ -26,10 +31,11 @@ func main() {
 		for _, region := range item.Regions {
 			if strings.ToUpper(region) == "WORLDWIDE" {
 				for _, image := range item.Images {
-					fileExt, err := cwsService.HeadProductImage(image.Image)
-					if err != nil {
+					fileUrl, err := cwsService.HeadProductImageForUrl(image.Image)
+					if err != nil || fileUrl == noImageUrl {
 						continue
 					}
+					fileExt := filepath.Ext(fileUrl)
 
 					if !awsService.S3ItemExists(item.ProductID, fileExt, image.Format) {
 						file, _, err := cwsService.GetProductImage(image.Image)

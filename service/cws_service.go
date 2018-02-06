@@ -2,13 +2,13 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
-	"errors"
-	log "github.com/sirupsen/logrus"
 	"path/filepath"
+
+	log "github.com/sirupsen/logrus"
 	"slurpCwsImages/model"
 )
 
@@ -19,7 +19,7 @@ const (
 type CwsService interface {
 	GetProducts() (*model.ProductsResponse, error)
 	GetProductImage(path string) ([]byte, string, error)
-	HeadProductImage(path string) (string, error)
+	HeadProductImageForUrl(path string) (string, error)
 }
 
 type cwsServiceImpl struct {
@@ -61,13 +61,13 @@ func (service *cwsServiceImpl) GetProductImage(path string) ([]byte, string, err
 	return file, filepath.Ext(finalURL), nil
 }
 
-func (service *cwsServiceImpl) HeadProductImage(path string) (string, error) {
+func (service *cwsServiceImpl) HeadProductImageForUrl(path string) (string, error) {
 	var finalURL string
 	resp, err := service.noRedirectClient.Get(path)
 	if err != nil {
 		if resp.StatusCode == 302 {
 			finalURL = resp.Header.Get("Location")
-			return filepath.Ext(finalURL), nil
+			return finalURL, nil
 		}
 
 		log.WithError(err).Error(fmt.Sprintf("Failed to Head %s", path))
@@ -75,10 +75,9 @@ func (service *cwsServiceImpl) HeadProductImage(path string) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	log.Error("Didn't get 302 redirect. Check CWS API")
-
 	finalURL = resp.Request.URL.String()
-	return filepath.Ext(finalURL), nil
+	log.WithField("finalUrl", finalURL).Info("Didn't get 302 redirect.")
+	return finalURL, nil
 }
 
 func BuildCwsService(cwsClient *http.Client) CwsService {
