@@ -2,8 +2,9 @@ package slurp
 
 import (
 	"path/filepath"
-	"slurpCwsImages/service"
 	"strings"
+
+	"github.com/jdebes/slurpCwsImages-lambda/service"
 )
 
 const (

@@ -6,10 +6,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/jdebes/slurpCwsImages-lambda/service"
+	"github.com/jdebes/slurpCwsImages-lambda/slurp"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2/clientcredentials"
-	"slurpCwsImages/service"
-	"slurpCwsImages/slurp"
 )
 
 func main() {

@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/jdebes/slurpCwsImages-lambda/model"
 	log "github.com/sirupsen/logrus"
-	"slurpCwsImages/model"
 )
 
 const (

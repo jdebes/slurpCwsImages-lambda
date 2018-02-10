@@ -1,12 +1,11 @@
 package test
 
 import (
-	"slurpCwsImages/test/mocks"
-
+	"github.com/jdebes/slurpCwsImages-lambda/model"
+	"github.com/jdebes/slurpCwsImages-lambda/slurp"
+	"github.com/jdebes/slurpCwsImages-lambda/test/mocks"
 	. "github.com/onsi/ginkgo"
 	"github.com/stretchr/testify/mock"
-	"slurpCwsImages/model"
-	"slurpCwsImages/slurp"
 )
 
 var _ = Describe("slurpCwsImages", func() {
