@@ -25,3 +25,10 @@ AWS_ACCESS_KEY_ID #When running on local dev machine only
 CWS_CLIENT_SECRET #When running on local dev machine only
 BUCKET
 ```
+
+### Run Tests
+
+Run all tests:
+```
+go test ./...
+```
