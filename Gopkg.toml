@@ -39,3 +39,15 @@
 [[constraint]]
   name = "github.com/aws/aws-sdk-go"
   version = "1.12.70"
+
+[[constraint]]
+  name = "github.com/onsi/ginkgo"
+  version = "1.4.0"
+
+[[constraint]]
+  name = "github.com/onsi/gomega"
+  version = "1.3.0"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "1.2.1"
