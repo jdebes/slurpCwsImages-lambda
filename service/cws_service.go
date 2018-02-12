@@ -65,13 +65,17 @@ func (service *cwsServiceImpl) HeadProductImageForUrl(path string) (string, erro
 	var finalURL string
 	resp, err := service.noRedirectClient.Get(path)
 	if err != nil {
-		if resp.StatusCode == 302 {
+		if resp != nil && resp.StatusCode == 302 {
 			finalURL = resp.Header.Get("Location")
 			return finalURL, nil
 		}
 
 		log.WithError(err).Error(fmt.Sprintf("Failed to Head %s", path))
-		return "", checkStatus(resp)
+		if resp != nil {
+			return "", checkStatus(resp)
+		}
+
+		return "", err
 	}
 	defer resp.Body.Close()
 
