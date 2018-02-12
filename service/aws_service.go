@@ -37,6 +37,7 @@ func (service *awsServiceImpl) UploadItemToS3(file []byte, fileExt string, produ
 	ctx, cancelFn := context.WithTimeout(context.Background(), service.timeout)
 	defer cancelFn()
 
+	startTime := time.Now()
 	_, err := service.svc.PutObjectWithContext(ctx, &s3.PutObjectInput{
 		Bucket:        aws.String(service.bucket),
 		Key:           aws.String(service.buildProductFileName(productID, fileExt, imageType)),
@@ -52,7 +53,9 @@ func (service *awsServiceImpl) UploadItemToS3(file []byte, fileExt string, produ
 
 		return err
 	}
+	duration := time.Now().Sub(startTime)
 
+	log.Debug(fmt.Sprintf("Uploaded to S3 %s", duration.String()))
 	return nil
 }
 
