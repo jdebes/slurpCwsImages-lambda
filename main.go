@@ -25,7 +25,7 @@ func buildS3Client() service.AwsService {
 	var timeout time.Duration
 
 	bucket = getEnv("BUCKET")
-	timeout = time.Second * time.Duration(30)
+	timeout = time.Second * time.Duration(60)
 
 	return service.BuildAwsService(bucket, timeout)
 }
