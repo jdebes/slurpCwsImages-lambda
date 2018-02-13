@@ -7,7 +7,7 @@ import (
 )
 
 func checkStatus(resp *http.Response) error {
-	if resp.StatusCode == 200 || resp.StatusCode == 201 {
+	if resp == nil || resp.StatusCode == 200 || resp.StatusCode == 201 {
 		return nil
 	}
 
