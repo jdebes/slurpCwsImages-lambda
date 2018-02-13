@@ -17,6 +17,11 @@ func main() {
 	cwsService := service.BuildCwsService(client)
 	awsService := buildS3Client()
 
+	level, err := log.ParseLevel(getOptionalEnv("LOG_LEVEL"))
+	if err == nil {
+		log.SetLevel(level)
+	}
+
 	slurp.SlurpImages(cwsService, awsService)
 }
 
@@ -48,6 +53,15 @@ func getEnv(key string) string {
 	if !isPresent {
 		log.WithField("key", key).Error("Env variable not set")
 		panic(1)
+	}
+
+	return value
+}
+
+func getOptionalEnv(key string) string {
+	value, isPresent := os.LookupEnv(key)
+	if !isPresent {
+		return ""
 	}
 
 	return value
