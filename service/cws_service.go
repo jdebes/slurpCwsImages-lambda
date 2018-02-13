@@ -32,8 +32,15 @@ func (service *cwsServiceImpl) GetProducts() (*model.ProductsResponse, error) {
 
 	resp, err := service.client.Get(productsAPIPath)
 	if err != nil || checkStatus(resp) != nil {
-		log.WithError(err).Error("Failed to Get Products")
-		return nil, checkStatus(resp)
+		logField := log.WithError(err)
+
+		if err = checkStatus(resp); err != nil {
+			logField = log.WithError(err)
+			return nil, err
+		}
+
+		logField.Error("Failed to Get Products")
+		return nil, err
 	}
 	defer resp.Body.Close()
 
@@ -49,8 +56,15 @@ func (service *cwsServiceImpl) GetProducts() (*model.ProductsResponse, error) {
 func (service *cwsServiceImpl) GetProductImage(path string) ([]byte, string, error) {
 	resp, err := http.Get(path)
 	if err != nil || checkStatus(resp) != nil {
-		log.WithError(err).Error(fmt.Sprintf("Failed to Get %s", path))
-		return nil, "", checkStatus(resp)
+		logField := log.WithError(err)
+
+		if err = checkStatus(resp); err != nil {
+			logField = log.WithError(err)
+			return nil, "", err
+		}
+
+		logField.Error(fmt.Sprintf("Failed to Get %s", path))
+		return nil, "", err
 	}
 	defer resp.Body.Close()
 
