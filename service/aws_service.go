@@ -34,6 +34,8 @@ type awsServiceImpl struct {
 func (service *awsServiceImpl) UploadItemToS3(file []byte, fileExt string, productID string, imageType string) error {
 	fileStream := bytes.NewReader(file)
 
+	logField := log.WithField("productID", productID)
+
 	ctx, cancelFn := context.WithTimeout(context.Background(), service.timeout)
 	defer cancelFn()
 
@@ -46,16 +48,16 @@ func (service *awsServiceImpl) UploadItemToS3(file []byte, fileExt string, produ
 	})
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok && aerr.Code() == request.CanceledErrorCode {
-			log.WithError(err).Error("Failed due to a cancelled context")
+			logField.WithError(err).Error("Failed due to a cancelled context")
 		} else {
-			log.WithError(err).Error("Unable to upload to S3 bucket")
+			logField.WithError(err).Error("Unable to upload to S3 bucket")
 		}
 
 		return err
 	}
 	duration := time.Now().Sub(startTime)
 
-	log.Debug(fmt.Sprintf("Uploaded to S3 %s", duration.String()))
+	logField.Debug(fmt.Sprintf("Uploaded to S3 %s", duration.String()))
 	return nil
 }
 
