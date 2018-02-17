@@ -26,6 +26,12 @@ CWS_CLIENT_SECRET #When running on local dev machine only
 BUCKET
 ```
 
+Optional:
+```
+CONCURRENCY_LIMIT #default 10
+LOG_LEVEL #default info
+```
+
 ### Run Tests
 
 Run all tests:

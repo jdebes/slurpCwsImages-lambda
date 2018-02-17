@@ -10,11 +10,10 @@ import (
 )
 
 const (
-	noImageUrl   = "https://api.codeswholesale.com/assets/images/no-image.jpg"
-	routineLimit = 10
+	noImageUrl = "https://api.codeswholesale.com/assets/images/no-image.jpg"
 )
 
-func SlurpImages(cwsService service.CwsService, awsService service.AwsService) {
+func SlurpImages(cwsService service.CwsService, awsService service.AwsService, concurrencyLimit int) {
 	resp, err := cwsService.GetProducts()
 	if err != nil {
 		panic(1)
@@ -23,14 +22,18 @@ func SlurpImages(cwsService service.CwsService, awsService service.AwsService) {
 	var wg sync.WaitGroup
 	wg.Add(len(resp.Items))
 
-	sem := make(chan struct{}, routineLimit)
+	sem := make(chan struct{}, concurrencyLimit)
 
 	for _, item := range resp.Items {
 		for _, region := range item.Regions {
 			if strings.ToUpper(region) == "WORLDWIDE" {
 				for _, image := range item.Images {
 					sem <- struct{}{}
-					go uploadImage(wg, sem, image, item, cwsService, awsService)
+					go func() {
+						uploadImage(image, item, cwsService, awsService)
+						defer wg.Done()
+						defer func() { <-sem }()
+					}()
 				}
 			}
 		}
@@ -39,10 +42,7 @@ func SlurpImages(cwsService service.CwsService, awsService service.AwsService) {
 	wg.Wait()
 }
 
-func uploadImage(wg sync.WaitGroup, semaphore chan struct{}, image model.Image, item model.CwsProduct, cwsService service.CwsService, awsService service.AwsService) {
-	defer wg.Done()
-	defer func() { <-semaphore }()
-
+func uploadImage(image model.Image, item model.CwsProduct, cwsService service.CwsService, awsService service.AwsService) {
 	fileUrl, err := cwsService.HeadProductImageForUrl(image.Image)
 	if err != nil || fileUrl == noImageUrl {
 		return

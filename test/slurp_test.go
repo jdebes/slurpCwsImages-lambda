@@ -45,7 +45,8 @@ var _ = Describe("slurpCwsImages", func() {
 			cwsService.On("HeadProductImageForUrl", mock.Anything).Return("https://api.codeswholesale.com/assets/images/test.jpg", nil)
 			awsService.On("S3ItemExists", "1234-ffff", ".jpg", "medium").Return(false)
 
-			slurp.SlurpImages(cwsService, awsService)
+			slurp.SlurpImages(cwsService, awsService, 10)
+			defer GinkgoRecover()
 		})
 
 		It("Should call UploadItemToS3", func() {
@@ -58,7 +59,8 @@ var _ = Describe("slurpCwsImages", func() {
 			cwsService.On("HeadProductImageForUrl", mock.Anything).Return("https://api.codeswholesale.com/assets/images/no-image.jpg", nil)
 			awsService.On("S3ItemExists", "1234-ffff", ".jpg", "medium").Return(false)
 
-			slurp.SlurpImages(cwsService, awsService)
+			slurp.SlurpImages(cwsService, awsService, 10)
+			defer GinkgoRecover()
 		})
 
 		It("Should not call UploadItemToS3", func() {
@@ -75,7 +77,8 @@ var _ = Describe("slurpCwsImages", func() {
 			cwsService.On("HeadProductImageForUrl", mock.Anything).Return("https://api.codeswholesale.com/assets/images/test.jpg", nil)
 			awsService.On("S3ItemExists", "1234-ffff", ".jpg", "medium").Return(true)
 
-			slurp.SlurpImages(cwsService, awsService)
+			slurp.SlurpImages(cwsService, awsService, 10)
+			defer GinkgoRecover()
 		})
 
 		It("Should not call UploadItemToS3", func() {

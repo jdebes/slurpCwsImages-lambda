@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/jdebes/slurpCwsImages-lambda/service"
@@ -22,7 +23,12 @@ func main() {
 		log.SetLevel(level)
 	}
 
-	slurp.SlurpImages(cwsService, awsService)
+	concurrencyLimit, err := strconv.Atoi(getOptionalEnv("CONCURRENCY_LIMIT"))
+	if err != nil {
+		concurrencyLimit = 10
+	}
+
+	slurp.SlurpImages(cwsService, awsService, concurrencyLimit)
 }
 
 func buildS3Client() service.AwsService {
