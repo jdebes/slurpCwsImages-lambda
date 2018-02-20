@@ -7,6 +7,7 @@ import (
 
 	"github.com/jdebes/slurpCwsImages-lambda/model"
 	"github.com/jdebes/slurpCwsImages-lambda/service"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -21,6 +22,7 @@ func SlurpImages(cwsService service.CwsService, awsService service.AwsService, c
 
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, concurrencyLimit)
+	uploadCount := 0
 
 	for _, item := range resp.Items {
 		for _, region := range item.Regions {
@@ -30,6 +32,7 @@ func SlurpImages(cwsService service.CwsService, awsService service.AwsService, c
 					sem <- struct{}{}
 					go func() {
 						uploadImage(image, item, cwsService, awsService)
+						uploadCount++
 						defer wg.Done()
 						defer func() { <-sem }()
 					}()
@@ -39,6 +42,7 @@ func SlurpImages(cwsService service.CwsService, awsService service.AwsService, c
 	}
 
 	wg.Wait()
+	logrus.WithField("count", uploadCount).Info("Slurp completed")
 }
 
 func uploadImage(image model.Image, item model.CwsProduct, cwsService service.CwsService, awsService service.AwsService) {
