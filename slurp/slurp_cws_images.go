@@ -20,14 +20,13 @@ func SlurpImages(cwsService service.CwsService, awsService service.AwsService, c
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(len(resp.Items))
-
 	sem := make(chan struct{}, concurrencyLimit)
 
 	for _, item := range resp.Items {
 		for _, region := range item.Regions {
 			if strings.ToUpper(region) == "WORLDWIDE" {
 				for _, image := range item.Images {
+					wg.Add(1)
 					sem <- struct{}{}
 					go func() {
 						uploadImage(image, item, cwsService, awsService)
