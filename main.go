@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/jdebes/slurpCwsImages-lambda/service"
 	"github.com/jdebes/slurpCwsImages-lambda/slurp"
 	log "github.com/sirupsen/logrus"
@@ -28,7 +29,11 @@ func main() {
 		concurrencyLimit = 10
 	}
 
-	slurp.SlurpImages(cwsService, awsService, concurrencyLimit)
+	lambdaStart := func(ctx context.Context) {
+		slurp.SlurpImages(cwsService, awsService, concurrencyLimit)
+	}
+
+	lambda.Start(lambdaStart)
 }
 
 func buildS3Client() service.AwsService {
