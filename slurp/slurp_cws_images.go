@@ -30,12 +30,12 @@ func SlurpImages(cwsService service.CwsService, awsService service.AwsService, c
 				for _, image := range item.Images {
 					wg.Add(1)
 					sem <- struct{}{}
-					go func() {
+					go func(image model.Image, item model.CwsProduct) {
 						uploadImage(image, item, cwsService, awsService)
 						uploadCount++
 						defer wg.Done()
 						defer func() { <-sem }()
-					}()
+					}(image, item)
 				}
 			}
 		}
