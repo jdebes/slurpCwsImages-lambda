@@ -1,7 +1,6 @@
 package slurp
 
 import (
-	"path/filepath"
 	"strings"
 	"sync"
 
@@ -48,12 +47,12 @@ func SlurpImages(cwsService service.CwsService, awsService service.AwsService, c
 func uploadImage(image model.Image, item model.CwsProduct, cwsService service.CwsService, awsService service.AwsService) {
 	fileUrl, err := cwsService.HeadProductImageForUrl(image.Image)
 	if err != nil || fileUrl == noImageUrl {
+		logrus.WithField("cwsId", item.ProductID).Info("Did not upload product image")
 		return
 	}
-	fileExt := filepath.Ext(fileUrl)
 
-	if !awsService.S3ItemExists(item.ProductID, fileExt, image.Format) {
-		file, _, err := cwsService.GetProductImage(image.Image)
+	if !awsService.S3ItemExists(item.ProductID, image.Format) {
+		file, fileExt, err := cwsService.GetProductImage(image.Image)
 		if err != nil {
 			return
 		}

@@ -1,9 +1,13 @@
 package service
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image/jpeg"
+	"image/png"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
@@ -68,11 +72,15 @@ func (service *cwsServiceImpl) GetProductImage(path string) ([]byte, string, err
 	}
 	defer resp.Body.Close()
 
-	file, err := ioutil.ReadAll(resp.Body)
-
+	var file []byte
 	finalURL := resp.Request.URL.String()
+	if filepath.Ext(finalURL) == ".png" {
+		file, err = convertPngToJpg(resp.Body)
+	} else {
+		file, err = ioutil.ReadAll(resp.Body)
+	}
 
-	return file, filepath.Ext(finalURL), nil
+	return file, FileExtension, nil
 }
 
 func (service *cwsServiceImpl) HeadProductImageForUrl(path string) (string, error) {
@@ -107,4 +115,19 @@ func BuildCwsService(cwsClient *http.Client) CwsService {
 			},
 		},
 	}
+}
+
+func convertPngToJpg(file io.Reader) ([]byte, error) {
+	image, err := png.Decode(file)
+	if err != nil {
+		return nil, err
+	}
+
+	buffer := new(bytes.Buffer)
+	err = jpeg.Encode(buffer, image, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return buffer.Bytes(), nil
 }

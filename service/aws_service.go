@@ -17,12 +17,13 @@ import (
 )
 
 const (
-	AwsNotFound = "NotFound"
+	AwsNotFound   = "NotFound"
+	FileExtension = ".jpg"
 )
 
 type AwsService interface {
 	UploadItemToS3(file []byte, fileExt string, productID string, imageType string) error
-	S3ItemExists(productID string, fileExt string, imageType string) bool
+	S3ItemExists(productID string, imageType string) bool
 }
 
 type awsServiceImpl struct {
@@ -61,13 +62,13 @@ func (service *awsServiceImpl) UploadItemToS3(file []byte, fileExt string, produ
 	return nil
 }
 
-func (service *awsServiceImpl) S3ItemExists(productID string, fileExt string, imageType string) bool {
+func (service *awsServiceImpl) S3ItemExists(productID string, imageType string) bool {
 	ctx, cancelFn := context.WithTimeout(context.Background(), service.timeout)
 	defer cancelFn()
 
 	_, err := service.svc.HeadObjectWithContext(ctx, &s3.HeadObjectInput{
 		Bucket: aws.String(service.bucket),
-		Key:    aws.String(service.buildProductFileName(productID, fileExt, imageType)),
+		Key:    aws.String(service.buildProductFileName(productID, FileExtension, imageType)),
 	})
 	if err != nil {
 		aerr, ok := err.(awserr.Error)
