@@ -1,6 +1,6 @@
-# slurpCwsImages AWS Lambda Function
+# CodesWholeSale slurpCwsImages AWS Lambda Function
 
-AWS Lambda that grabs codeswholesale images and writes them to an S3 bucket.
+AWS Lambda function that grabs all [codeswholesale](https://codeswholesale.com) product images and writes them to an S3 bucket.
 
 ## Getting Started
 
